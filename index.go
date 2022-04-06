@@ -1,4 +1,5 @@
 package imagery
+
 import (
 	"fmt"
 	"image/jpeg"
@@ -29,7 +30,7 @@ var (
 type imageryrepository struct{}
 
 //Imagetype ...
-func (i imageryrepository) Imagetype(f, filename string) {
+func (i imageryrepository) Imagetype(f, filename string, height, width int) {
 
 	// maximize CPU usage for maximum performance
 	// runtime.GOMAXPROCS(runtime.NumCPU())
@@ -57,10 +58,10 @@ func (i imageryrepository) Imagetype(f, filename string) {
 
 	switch filetype {
 	case "image/jpeg", "image/jpg":
-		ResizeJPG(f, filename)
+		ResizeJPG(f, filename, height, width)
 
 	case "image/png":
-		ResizePng(f, filename)
+		ResizePng(f, filename, height, width)
 
 	default:
 		fmt.Println("Wrong file format")
@@ -69,7 +70,7 @@ func (i imageryrepository) Imagetype(f, filename string) {
 }
 
 //ResizePng ...
-func ResizePng(f, filename string) (*os.File, httperrors.HttpErr) {
+func ResizePng(f, filename string, height, width int) (*os.File, httperrors.HttpErr) {
 
 	file, err := os.Open(f)
 	if err != nil {
@@ -83,7 +84,7 @@ func ResizePng(f, filename string) (*os.File, httperrors.HttpErr) {
 
 	// resize to width 60 using Lanczos resampling
 	// and preserve aspect ratio
-	m := resize.Resize(500, 500, img, resize.Lanczos3)
+	m := resize.Resize(uint(width), uint(height), img, resize.Lanczos3)
 	// return out, nil
 	out, err := os.Create(filename)
 	if err != nil {
@@ -100,7 +101,7 @@ func ResizePng(f, filename string) (*os.File, httperrors.HttpErr) {
 }
 
 //ResizeJPG ...
-func ResizeJPG(f, filename string) (*os.File, httperrors.HttpErr) {
+func ResizeJPG(f, filename string, height, width int) (*os.File, httperrors.HttpErr) {
 	file, err := os.Open(f)
 	if err != nil {
 		return nil, httperrors.NewNotFoundError("error opening the file")
@@ -113,7 +114,7 @@ func ResizeJPG(f, filename string) (*os.File, httperrors.HttpErr) {
 
 	// resize to width 60 using Lanczos resampling
 	// and preserve aspect ratio
-	m := resize.Resize(500, 0, img, resize.Lanczos3)
+	m := resize.Resize(uint(width), uint(height), img, resize.Lanczos3)
 	out, err := os.Create(filename)
 	if err != nil {
 		return nil, httperrors.NewNotFoundError("error decoding jpeg")

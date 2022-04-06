@@ -1,4 +1,4 @@
-module github.com/myrachanto/settings/imagery
+module github.com/myrachanto/imagery
 
 go 1.16
 
