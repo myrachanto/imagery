@@ -22,14 +22,14 @@ import (
 	"github.com/nfnt/resize"
 )
 
-//Imagery ...
+// Imagery ...
 var (
 	Imageryrepository imageryrepository = imageryrepository{}
 )
 
 type imageryrepository struct{}
 
-//Imagetype ...
+// Imagetype ...
 func (i imageryrepository) Imagetype(f, filename string, height, width int) {
 
 	// maximize CPU usage for maximum performance
@@ -55,13 +55,16 @@ func (i imageryrepository) Imagetype(f, filename string, height, width int) {
 	filetype := http.DetectContentType(buff)
 
 	fmt.Println(filetype)
+	// Define the new width and height while maintaining the aspect ratio
+	newWidth := uint(width) // Desired width
+	newHeight := uint(0)    // Automatically calculate to maintain aspect ratio
 
 	switch filetype {
 	case "image/jpeg", "image/jpg":
-		ResizeJPG(f, filename, height, width)
+		ResizeJPG(f, filename, newHeight, newWidth)
 
 	case "image/png":
-		ResizePng(f, filename, height, width)
+		ResizePng(f, filename, newHeight, newWidth)
 
 	default:
 		fmt.Println("Wrong file format")
@@ -69,8 +72,8 @@ func (i imageryrepository) Imagetype(f, filename string, height, width int) {
 
 }
 
-//ResizePng ...
-func ResizePng(f, filename string, height, width int) (*os.File, httperrors.HttpErr) {
+// ResizePng ...
+func ResizePng(f, filename string, height, width uint) (*os.File, httperrors.HttpErr) {
 
 	file, err := os.Open(f)
 	if err != nil {
@@ -84,7 +87,7 @@ func ResizePng(f, filename string, height, width int) (*os.File, httperrors.Http
 
 	// resize to width 60 using Lanczos resampling
 	// and preserve aspect ratio
-	m := resize.Resize(uint(width), uint(height), img, resize.Lanczos3)
+	m := resize.Resize(width, height, img, resize.Lanczos3)
 	// return out, nil
 	out, err := os.Create(filename)
 	if err != nil {
@@ -100,8 +103,8 @@ func ResizePng(f, filename string, height, width int) (*os.File, httperrors.Http
 	return out, nil
 }
 
-//ResizeJPG ...
-func ResizeJPG(f, filename string, height, width int) (*os.File, httperrors.HttpErr) {
+// ResizeJPG ...
+func ResizeJPG(f, filename string, height, width uint) (*os.File, httperrors.HttpErr) {
 	file, err := os.Open(f)
 	if err != nil {
 		return nil, httperrors.NewNotFoundError("error opening the file")
@@ -114,7 +117,7 @@ func ResizeJPG(f, filename string, height, width int) (*os.File, httperrors.Http
 
 	// resize to width 60 using Lanczos resampling
 	// and preserve aspect ratio
-	m := resize.Resize(uint(width), uint(height), img, resize.Lanczos3)
+	m := resize.Resize(width, height, img, resize.Lanczos3)
 	out, err := os.Create(filename)
 	if err != nil {
 		return nil, httperrors.NewNotFoundError("error decoding jpeg")
